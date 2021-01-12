@@ -4,6 +4,7 @@
 command = []
 warehouse = {}
 history = []
+brake_while = ['stop', 'konto', 'magazyn', 'przegląd']
 balance = 0
 
 
@@ -26,46 +27,55 @@ def f_command(action):
     elif action[0] == 'saldo':
         action.append(int(input()))
         action.append(str(input()))
-    else:
-        action[0] = 'stop'
-        print("STOP")
     return action
 
 
-def check_values(values, cash):
-    if values[0] == 'saldo' and cash < 0:
-        cash -= int(values[1])
-        print("Ujemne saldo! Maksymalnie do wypłaty: ", cash)
-        return cash
-    elif (values[0] == 'zakup' or values[0] == 'sprzedaż') and (values[2] < 0 or values[3] < 0):
-        print("Błąd! Cena oraz ilość muszą być dodatnie!")
+def command_check(values, cash):
+    for i in values:
+        if values[0] == 'saldo' and cash + values[1] < 0:
+            print("Błąd! Ujemne saldo!")
+            return False
+        if values[0] != 'saldo' and type(i) == int and i < 0:
+            print("Błąd! Ujemne wartości!")
+            return False
+    if values[0] == 'zakup' and cash - values[2]*values[3] < 0:
+        print("Błąd! Nie masz wystarczającej ilości środków")
         return False
-    else:
-        return cash
+    return True
 
 
 while True:
 
     command = f_command(input())
-    print("Aktualna komenda: ", command)
-
-    if command[0] == 'stop':
+    check = command_check(command, balance)
+    if not check:
+        break
+    if command[0] in brake_while:
         break
     elif command[0] == 'saldo':
         balance += int(command[1])
-        balance = check_values(command, balance)
     elif command[0] == 'zakup':
         balance -= trade(command[2], command[3])
-        print("Balance: ", balance)
-        print("Magazyn: ", warehouse)
     elif command[0] == 'sprzedaż':
         balance += trade(command[2], command[3])
-        print("Balance: ", balance)
-        print("Magazyn: ", warehouse)
 
     history += [command]
 
+history += [command]
+if command[0] == 'konto':
+    print("Balance: ", balance)
+elif command[0] == 'magazyn':
+    for key, amount in warehouse.items():
+        print(key, amount)
+elif command[0] == 'przegląd':
+    print("Historia:")
+    for record in history:
+        print(record)
+elif check:
+    for record in history:
+        for i in record:
+            print(i)
+print("")
 print("Balance: ", balance)
-for record in history:
-    print("Historia: ", record)
-
+for key, amount in warehouse.items():
+    print(key, amount)
