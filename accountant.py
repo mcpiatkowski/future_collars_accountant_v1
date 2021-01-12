@@ -30,7 +30,7 @@ def f_command(action):
     return action
 
 
-def command_check(values, cash):
+def command_check(values, cash, stock):
     for i in values:
         if values[0] == 'saldo' and cash + values[1] < 0:
             print("Błąd! Ujemne saldo!")
@@ -41,13 +41,16 @@ def command_check(values, cash):
     if values[0] == 'zakup' and cash - values[2]*values[3] < 0:
         print("Błąd! Nie masz wystarczającej ilości środków")
         return False
+    if values[0] == 'sprzedaż' and values[3] > stock[values[1]]:
+        print("Błąd! Brak wystarczającej ilości sztuk na magazynie.")
+        return False
     return True
 
 
 while True:
 
     command = f_command(input())
-    check = command_check(command, balance)
+    check = command_check(command, balance, warehouse)
     if not check:
         break
     if command[0] in brake_while:
@@ -65,8 +68,8 @@ history += [command]
 if command[0] == 'konto':
     print("Balance: ", balance)
 elif command[0] == 'magazyn':
-    for key, amount in warehouse.items():
-        print(key, amount)
+    for item, amount in warehouse.items():
+        print(item, amount)
 elif command[0] == 'przegląd':
     print("Historia:")
     for record in history:
@@ -75,7 +78,3 @@ elif check:
     for record in history:
         for i in record:
             print(i)
-print("")
-print("Balance: ", balance)
-for key, amount in warehouse.items():
-    print(key, amount)
