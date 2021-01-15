@@ -1,11 +1,6 @@
 #  ACCOUNTANT
 
-#  import sys
-command = []
-warehouse = {}
-history = []
-brake_while = ['stop', 'konto', 'magazyn', 'przegląd']
-balance = 0
+import sys
 
 
 def trade(price, amount):
@@ -18,7 +13,7 @@ def trade(price, amount):
     return price*amount
 
 
-def f_command(action):
+def grab_command(action):
     action = [action]
     if action[0] == 'zakup' or action[0] == 'sprzedaż':
         action.append(input())
@@ -29,8 +24,29 @@ def f_command(action):
         action.append(str(input()))
     return action
 
+def grab_argv():
+    command = []
+    if len(sys.argv) == 4:
+        command.append(str(sys.argv[1]))
+        command.append(int(sys.argv[2]))
+        command.append(str(sys.argv[3]))
+        if command[0] not in allow:
+            return print("Błąd! Nieznana komenda.")
+        if balance + command[1] < 0:
+            return print("Błąd! Brak środków.")
+    elif len(sys.argv) == 5:
+        command.append(str(sys.argv[1]))
+        command.append(str(sys.argv[2]))
+        command.append(int(sys.argv[3]))
+        command.append(int(sys.argv[4]))
+        if command[0] not in allow:
+            return print("Błąd! Nieznana komenda.")
+        if command[2] < 0 or command[3] < 0:
+            return print("Błąd! Ilość musi być dodatnia.")
+    return command
 
-def command_check(values, cash, stock):
+
+def error(values, cash, stock):
     for i in values:
         if values[0] == 'saldo' and cash + values[1] < 0:
             print("Błąd! Ujemne saldo!")
@@ -47,10 +63,18 @@ def command_check(values, cash, stock):
     return True
 
 
+command = []
+warehouse = {}
+history = []
+brake_while = ['stop', 'konto', 'magazyn', 'przegląd']
+allow = ['konto', 'magazyn', 'przegląd', 'saldo', 'zakup', 'sprzedaż']
+balance = 0
+
+
 while True:
 
-    command = f_command(input())
-    check = command_check(command, balance, warehouse)
+    command = grab_command(input())
+    check = error(command, balance, warehouse)
     if not check:
         break
     if command[0] in brake_while:
@@ -65,6 +89,8 @@ while True:
     history += [command]
 
 history += [command]
+command = grab_argv()
+
 if command[0] == 'konto':
     print("Balance: ", balance)
 elif command[0] == 'magazyn':
@@ -78,3 +104,8 @@ elif check:
     for record in history:
         for i in record:
             print(i)
+
+history += [command]
+print("###########################")
+print("saldo", balance)
+print("magazyn", warehouse)
