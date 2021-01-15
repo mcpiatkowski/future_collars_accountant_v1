@@ -5,10 +5,10 @@ import sys
 command = []
 warehouse = {}
 history = []
-brake_while = ['stop', 'konto', 'magazyn', 'przegląd']
-allow = ['konto', 'magazyn', 'przegląd', 'saldo', 'zakup', 'sprzedaż']
 balance = 0
-
+print_history = ['saldo', 'zakup', 'sprzedaż']
+argv_break = ['przegląd', 'saldo', 'zakup', 'sprzedaż', 'konto', 'magazyn']
+allow = 0
 
 def trade(price, amount):
     if (command[1] in warehouse) and command[0] == 'zakup':
@@ -55,15 +55,13 @@ def grab_argv():
             command.append(str(sys.argv[item]))
         return command
     if sys.argv[1] == 'przegląd':
-        command.append(str(sys.argv[1]))
-        command.append(int(sys.argv[2]))
-        command.append(int(sys.argv[3]))
+            command.append(str(sys.argv[1]))
+            command.append(int(sys.argv[2]))
+            command.append(int(sys.argv[3]))
     if sys.argv[1] == 'saldo':
         command.append(str(sys.argv[1]))
         command.append(int(sys.argv[2]))
         command.append(str(sys.argv[3]))
-        if command[0] not in allow:
-            return print("Błąd! Nieznana komenda.")
         if balance + command[1] < 0:
             return print("Błąd! Brak środków.")
     elif sys.argv[1] == 'zakup' or sys.argv[1] == 'sprzedaż':
@@ -71,8 +69,6 @@ def grab_argv():
         command.append(str(sys.argv[2]))
         command.append(int(sys.argv[3]))
         command.append(int(sys.argv[4]))
-        if command[0] not in allow:
-            return print("Błąd! Nieznana komenda.")
         if command[2] < 0 or command[3] < 0:
             return print("Błąd! Ilość musi być dodatnia.")
     elif len(sys.argv) == 2:
@@ -98,6 +94,22 @@ def error(values, cash, stock):
     return True
 
 
+def argv_error():
+    if sys.argv[1] == 'przegląd' and len(sys.argv) < 4:
+        print("Błąd! Za mało argumentów.")
+        return False
+    if sys.argv[1] == 'saldo' and len(sys.argv) < 4:
+        print("Błąd! Za mało argumentów.")
+        return False
+    elif (sys.argv[1] == 'zakup' or sys.argv[1] == 'sprzedaż') and len(sys.argv) < 5:
+        print("Błąd! Za mało argumentów.")
+        return False
+    elif sys.argv[1] not in argv_break:
+        print("Błąd! Za mało argumentów.")
+        return False
+    return True
+
+
 while True:
     command = grab_command(input())
     check = error(command, balance, warehouse)
@@ -105,9 +117,15 @@ while True:
     if not check:
         break
     if command[0] == 'stop':
+        argv_check = argv_error()
+        if argv_check == False:
+            break
         command = grab_argv()
         if len(sys.argv) == 1:
+            allow = 1
             break
+        if command[0] in print_history:
+            allow =1
     if command[0] == 'saldo':
         balance += int(command[1])
     if command[0] == 'zakup':
@@ -126,6 +144,7 @@ while True:
         history.append(stop)
         break
 
-#for index in history:
-#    for action in index:
-#        print(action)
+if allow == 1:
+    for index in history:
+        for action in index:
+            print(action)
