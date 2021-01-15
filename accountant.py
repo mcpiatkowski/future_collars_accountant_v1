@@ -43,6 +43,8 @@ def grab_argv():
             return print("Błąd! Nieznana komenda.")
         if command[2] < 0 or command[3] < 0:
             return print("Błąd! Ilość musi być dodatnia.")
+    else:
+        command.append(str(sys.argv[1]))
     return command
 
 
@@ -75,37 +77,37 @@ while True:
 
     command = grab_command(input())
     check = error(command, balance, warehouse)
+    history += command
     if not check:
         break
     if command[0] in brake_while:
-        break
-    elif command[0] == 'saldo':
+        command = grab_argv()
+    if command[0] == 'saldo':
         balance += int(command[1])
-    elif command[0] == 'zakup':
+    if command[0] == 'zakup':
         balance -= trade(command[2], command[3])
-    elif command[0] == 'sprzedaż':
+    if command[0] == 'sprzedaż':
         balance += trade(command[2], command[3])
+    if command[0] == 'konto':
+        print("Balance: ", balance)
+    if history[-1] == 'stop':
+        stop = history.pop(-1)
+        history += command
+        history.append(stop)
+        break
 
-    history += [command]
-
-history += [command]
-command = grab_argv()
-
-if command[0] == 'konto':
-    print("Balance: ", balance)
-elif command[0] == 'magazyn':
-    for item, amount in warehouse.items():
-        print(item, amount)
-elif command[0] == 'przegląd':
-    print("Historia:")
-    for record in history:
+for record in history:
         print(record)
-elif check:
-    for record in history:
-        for i in record:
-            print(i)
 
-history += [command]
-print("###########################")
-print("saldo", balance)
-print("magazyn", warehouse)
+print("Balance: ", balance)
+#elif command[0] == 'magazyn':
+#    for item, amount in warehouse.items():
+#        print(item, amount)
+#elif command[0] == 'przegląd':
+#    print("Historia:")
+#    for record in history:
+#        print(record)
+#elif check:
+#    for record in history:
+#        for i in record:
+#            print(i)
