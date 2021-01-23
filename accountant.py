@@ -43,13 +43,6 @@ def grab_input():
 
 
 def grab_command():
-    if input_from_file[0] == 'saldo':
-        add_to_command()
-        delete_from_input()
-    elif input_from_file[0] == 'zakup' or input_from_file[0] == 'sprzedaz':
-        add_to_command()
-        delete_from_input()
-    elif input_from_file[0] == 'stop':
         add_to_command()
         delete_from_input()
 
@@ -73,9 +66,10 @@ def product_check():
 
 
 def summary():
-    for index in range(int(command[1]), int(command[2])+1):
-        for action in history[index]:
-            print("podsumowanie: ", action)
+    with open('out.txt', 'w') as output_to_file:
+        for index in range(int(command[1]), int(command[2])+1):
+            for action in history[index]:
+                output_to_file.write(str(action) + '\n')
 
 
 def grab_argv():
