@@ -23,19 +23,22 @@ def trade(price, amount):
 
 
 def product_check():
-    for item in command[1:]:
-        try:
-            print('{}: {}'.format(item, warehouse[item]))
-        except KeyError:
-            print('{}: 0'.format(item))
-
-
-def summary():
     with open('out.txt', 'w') as output_to_file:
-        print(history)
-        for index in range(int(command[1]), int(command[2])+1):
-            for action in history[index]:
-                output_to_file.write(str(action) + '\n')
+        for item in command[1:]:
+            try:
+                output_to_file.write('{}: {}\n'.format(item, warehouse[item]))
+            except KeyError:
+                output_to_file.write('{}: 0'.format(item))
+
+
+def summary(balance):
+    with open('out.txt', 'w') as output_to_file:
+        if command[0] == 'konto':
+            output_to_file.write(str(balance))
+        else:
+            for index in range(int(command[1]), int(command[2])+1):
+                for action in history[index]:
+                    output_to_file.write(str(action) + '\n')
 
 
 def grab_argv():
@@ -128,12 +131,10 @@ while True:
         balance -= trade(int(command[2]), int(command[3]))
     if command[0] == 'sprzedaz':
         balance += trade(command[2], command[3])
-    if command[0] == 'konto':
-        print("Balance: ", balance)
     if command[0] == 'magazyn':
         product_check()
-    if command[0] == 'przegląd':
-        summary()
+    if command[0] == 'przegląd' or command[0] == 'konto':
+        summary(balance)
     if history[-1] == ['stop']:
         stop = history.pop(-1)
         history += [command]
@@ -141,6 +142,7 @@ while True:
         break
 
 if allow == 1:
-    for index in history:
-        for action in index:
-            print(action)
+    with open('out.txt', 'w') as output_to_file:
+        for index in history:
+            for action in index:
+                output_to_file.write(str(action) + '\n')
