@@ -1,4 +1,6 @@
 import sys
+from fileinput import add_to_command, delete_from_input, grab_command, grab_input
+
 
 command = []
 warehouse = {}
@@ -8,43 +10,6 @@ print_history = ['saldo', 'zakup', 'sprzedaz']
 argv_break = ['przegląd', 'saldo', 'zakup', 'sprzedaz', 'konto', 'magazyn']
 allow = 0
 input_from_file = []
-
-
-def add_to_command():
-    if input_from_file[0] == 'zakup' or input_from_file[0] == 'sprzedaz':
-        command.append(input_from_file[0])
-        command.append(input_from_file[1])
-        command.append(int(input_from_file[2]))
-        command.append(int(input_from_file[3]))    
-    elif input_from_file[0] == 'saldo':
-        command.append(input_from_file[0])
-        command.append(int(input_from_file[1])) 
-        command.append(input_from_file[2])
-    elif input_from_file[0] == 'stop':
-        command.append(input_from_file[0])
-
-
-def delete_from_input():
-    if input_from_file[0] == 'zakup' or input_from_file[0] == 'sprzedaz':
-        for count in range(4):
-            del input_from_file[0]
-    elif input_from_file[0] == 'saldo':
-        for count in range(3):
-            del input_from_file[0]
-    elif input_from_file[0] == 'stop':
-        del input_from_file[0]
-
-
-def grab_input():
-    with open('in.txt') as input_txt:
-        for line in input_txt:
-            line = line.strip()
-            input_from_file.append(line)
-
-
-def grab_command():
-        add_to_command()
-        delete_from_input()
 
 
 def trade(price, amount):
@@ -67,6 +32,7 @@ def product_check():
 
 def summary():
     with open('out.txt', 'w') as output_to_file:
+        print(history)
         for index in range(int(command[1]), int(command[2])+1):
             for action in history[index]:
                 output_to_file.write(str(action) + '\n')
@@ -137,11 +103,11 @@ def argv_error():
     return True
 
 
-grab_input()
+grab_input(input_from_file)
 
 while True:
     command = []
-    grab_command()
+    grab_command(input_from_file, command)
     check = error(command, balance, warehouse)
     history += [command]
     if not check:
